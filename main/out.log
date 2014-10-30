@@ -1,0 +1,108 @@
+17:39:57  
+17:39:57  
+17:39:57    ***********************************************
+17:39:57    *                 ===========                 *
+17:39:57    *                  CARAT 2.0                  *
+17:39:57    *                 ===========                 *
+17:39:57    *                                             *
+17:39:57    *                 SERIAL CODE!                *
+17:39:57    *                                             *
+17:39:57    *                Version 0.1.0                *
+17:39:57    *                                             *
+17:39:57    *  Computer Aided Research and Analysis Tool  *
+17:39:57    *          (object-oriented version)          *
+17:39:57    *        Chair of Structural Analysis,        *
+17:39:57    *   Prof. Dr. K.-U. Bletzinger, TU Muenchen   *
+17:39:57    ***********************************************
+17:39:57  
+17:39:57  
+17:39:57 Used logging system: RLOG
+17:39:57 
+17:39:57 --------------------------------------
+17:39:57  ... starting Preprocessing
+17:39:57 --------------------------------------
+17:39:57  
+17:39:57 Reading input file: /home/aditya/EMPIRE/EMPIRE-Testing/benchmark/FieldExamples/turek_test/turekFSIBenchmarkCarat/turekFSIBenchmarkCarat.dat
+17:39:57  
+17:39:57 Input file path detected: /home/aditya/EMPIRE/EMPIRE-Testing/benchmark/FieldExamples/turek_test/turekFSIBenchmarkCarat
+17:39:57 (/home/aditya/carat/src/module_femkernel/InputControl.cpp:187) [tid:14034413906924] Reading of global data finished
+17:39:57 (/home/aditya/carat/src/module_femkernel/InputControl.cpp:206) [tid:14034413906924] Reading of Level-Set finished
+17:39:57 (/home/aditya/carat/src/module_femkernel/InputControl.cpp:270) [tid:14034413906924] Reading of NURBS/BSPLINE/TSPLINE/TRIMMING topology finished
+17:39:57 (/home/aditya/carat/src/module_femkernel/InputControl.cpp:280) [tid:14034413906924] Reading of coordinate systems finished
+17:39:57 (/home/aditya/carat/src/module_femkernel/InputControl.cpp:313) [tid:14034413906924] Reading of materials and properties finished
+17:39:57 (/home/aditya/carat/src/module_femkernel/InputControl.cpp:324) [tid:14034413906924] Reading of parts finished
+17:39:57 (/home/aditya/carat/src/module_femkernel/InputControl.cpp:335) [tid:14034413906924] Reading of Load Curves finished
+17:39:57 (/home/aditya/carat/src/module_femkernel/InputControl.cpp:344) [tid:14034413906924] DesignControl object created
+17:39:57 (/home/aditya/carat/src/module_femkernel/InputControl.cpp:903) [tid:14034413906924] Reading of design nodes finished
+17:39:57 (/home/aditya/carat/src/module_femkernel/InputControl.cpp:910) [tid:14034413906924] Reading of design elements finished
+17:39:57 (/home/aditya/carat/src/module_femkernel/InputControl.cpp:919) [tid:14034413906924] Reading of design boundaries finished
+17:39:57 (/home/aditya/carat/src/module_femkernel/InputControl.cpp:926) [tid:14034413906924] Reading of design optimization refinement finished
+17:39:57 (/home/aditya/carat/src/module_femkernel/InputControl.cpp:933) [tid:14034413906924] Reading of design elements finished
+17:39:57 (/home/aditya/carat/src/module_femkernel/InputControl.cpp:940) [tid:14034413906924] Reading of design joints finished
+17:39:57 (/home/aditya/carat/src/module_femkernel/InputControl.cpp:947) [tid:14034413906924] Reading of design supports finished
+17:39:57 (/home/aditya/carat/src/module_femkernel/InputControl.cpp:954) [tid:14034413906924] Reading of design loads finished
+17:39:57 (/home/aditya/carat/src/module_femkernel/InputControl.cpp:961) [tid:14034413906924] Reading of design interfaces finished
+17:39:57 (/home/aditya/carat/src/module_femkernel/InputControl.cpp:348) [tid:14034413906924] Reading of design finished
+17:39:57 (/home/aditya/carat/src/module_femkernel/InputControl.cpp:359) [tid:14034413906924] Reading of nodes finished
+17:39:57 (/home/aditya/carat/src/module_femkernel/InputControl.cpp:369) [tid:14034413906924] Reading of control point parametre sets finished
+17:39:57 (/home/aditya/carat/src/module_femkernel/InputControl.cpp:381) [tid:14034413906924] Reading of chambers finished
+17:39:57 (/home/aditya/carat/src/module_femkernel/InputControl.cpp:397) [tid:14034413906924] Reading of Extraction operator and Bezier elements finished
+17:39:57 (/home/aditya/carat/src/module_femkernel/InputControl.cpp:408) [tid:14034413906924] Reading of elements and element sets finished
+17:39:57 (/home/aditya/carat/src/module_femkernel/InputControl.cpp:426) [tid:14034413906924] Reading of Dirichlet bc's finished
+17:39:57 (/home/aditya/carat/src/module_femkernel/InputControl.cpp:437) [tid:14034413906924] Reading of Neumann bc's finished
+17:39:57 (/home/aditya/carat/src/module_femkernel/InputControl.cpp:448) [tid:14034413906924] Reading of computation cases finished
+17:39:57 (/home/aditya/carat/src/module_femkernel/InputControl.cpp:466) [tid:14034413906924] Reading of Interfaces and Surfaces finished
+17:39:57 (/home/aditya/carat/src/module_femkernel/InputControl.cpp:485) [tid:14034413906924] Reading of contact properties and contact pairs finished
+17:39:57 (/home/aditya/carat/src/module_femkernel/InputControl.cpp:530) [tid:14034413906924] Reading of Actuators finished
+17:39:57 (/home/aditya/carat/src/module_femkernel/InputControl.cpp:539) [tid:14034413906924] Reading of Sensors finished
+17:39:57 (/home/aditya/carat/src/module_femkernel/InputControl.cpp:548) [tid:14034413906924] Reading of Controller finished
+17:39:57 (/home/aditya/carat/src/module_femkernel/InputControl.cpp:558) [tid:14034413906924] Reading of Mesh Regularization finished
+17:39:57 Masterjob: nonlinear dynamic analysis Generalized Alpha
+17:39:57 ---------
+17:39:57  
+17:39:57 (/home/aditya/carat/src/module_femkernel/InputControl.cpp:612) [tid:14034413906924] Reading of analysis block finished
+17:39:57 (/home/aditya/carat/src/module_femkernel/InputControl.cpp:646) [tid:14034413906924] Reading of design variables for IGA opt finished
+17:39:57 (/home/aditya/carat/src/module_femkernel/InputControl.cpp:652) [tid:14034413906924] Reading of design constraints for IGA opt finished
+17:39:57 (/home/aditya/carat/src/module_femkernel/InputControl.cpp:688) [tid:14034413906924] Reading of optimization data finished
+17:39:57 (/home/aditya/carat/src/module_femkernel/InputControl.cpp:724) [tid:14034413906924] Reading of problem block finished
+17:39:57 (/home/aditya/carat/src/module_femkernel/InputControl.cpp:739) [tid:14034413906924] Dummyrun for parameters finished
+17:39:57 (/home/aditya/carat/src/module_femkernel/InputControl.cpp:761) [tid:14034413906924] InputControl::load_Problem() finished
+17:39:57 complete preprocessing done in 0.260000 seconds.
+17:39:57  
+17:39:57 --------------------------------------
+17:39:57  ... starting Solution of problem 1:
+17:39:57 --------------------------------------
+17:39:57  
+17:39:57 EMPIRE_API_Connect(const_cast<char*>(empireInputFile.c_str()));
+17:39:57 AnalysisDynamicCoSimulationAdapter: send Interface Geometry.
+17:39:57  
+17:39:57 Sending mesh to EMPIRE
+17:39:57 (/home/aditya/carat/src/module_femkernel/SolverBasis_open.cpp:80) [tid:14034413906924] Bandwidth reduction started!
+17:39:57 (/home/aditya/carat/src/module_femkernel/SolverBasis_open.cpp:228) [tid:14034413906924] part one takes 0.000000 seconds!
+17:39:57 (/home/aditya/carat/src/module_femkernel/SolverBasis_open.cpp:255) [tid:14034413906924] Original bandwith  : 71 
+17:39:57 (/home/aditya/carat/src/module_femkernel/SolverBasis_open.cpp:256) [tid:14034413906924] Original profile   : 12675 
+17:39:57 (/home/aditya/carat/src/module_femkernel/SolverBasis_open.cpp:261) [tid:14034413906924] Using 'CUTHILL_MCKEE' algorithm
+17:39:57 (/home/aditya/carat/src/module_femkernel/SolverBasis_open.cpp:353) [tid:14034413906924] Optimized bandwidth  : 29
+17:39:57 (/home/aditya/carat/src/module_femkernel/SolverBasis_open.cpp:354) [tid:14034413906924] Optimized profile    : 5865
+17:39:57 (/home/aditya/carat/src/module_femkernel/SolverBasis_open.cpp:372) [tid:14034413906924] Bandwith reduction finished in 0.020000 seconds!
+17:39:57 (/home/aditya/carat/src/module_femkernel/SolverBasis_open.cpp:373) [tid:14034413906924]  
+17:39:57 (/home/aditya/carat/src/module_femkernel/SolverBasis_open.cpp:377) [tid:14034413906924]  
+17:39:57 sparse matrix: starting dry run
+17:39:57 sparse matrix: ... done in 0.010000 seconds.
+17:39:57  
+17:39:57 sparse matrix: starting dry run
+17:39:57 sparse matrix: ... done in 0.020000 seconds.
+17:39:57  
+17:39:57 (/home/aditya/carat/src/module_femkernel/AnalysisDynamicGenAlpha_Nln.cpp:250) [tid:14034413906924] AnalysisDynamicGenAlpha_Nln: starting assembly of global matrices K and M (560 DOF).
+17:39:58 (/home/aditya/carat/src/module_femkernel/AnalysisDynamicGenAlpha_Nln.cpp:303) [tid:14034413906924] AnalysisDynamicGenAlpha_Nln: ... done in 0.330000 seconds.
+17:39:58 (/home/aditya/carat/src/module_femkernel/AnalysisDynamicGenAlpha_Nln.cpp:304) [tid:14034413906924]  
+17:39:58 (/home/aditya/carat/src/module_solver/GlobalSparseMatrixSkylineSym_pre.cpp:566) [tid:14034413906924] GlobalSparseMatrixSkylineSym: Starting Factorization of sparse matrix.
+17:39:58 (/home/aditya/carat/src/module_solver/GlobalSparseMatrixSkylineSym_pre.cpp:607) [tid:14034413906924] GlobalSparseMatrixSkylineSym: Factorization done in 0.000000 seconds.
+17:39:58 (/home/aditya/carat/src/module_solver/GlobalSparseMatrixSkylineSym_pre.cpp:608) [tid:14034413906924]  
+17:39:58     1      |    0.000000e+00         |    0.000000e+00  
+17:39:58 Step: 1, Time: 1.001000
+17:39:58 ---------
+17:39:58 Current external load ||R_ext|| =     0.000000e+00  
+17:39:58 AnalysisDynamicCoSimulationAdapter: receive external loads.
+17:39:58  
+17:39:58 Receiving forces from EMPIRE

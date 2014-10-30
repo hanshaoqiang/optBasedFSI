@@ -1,0 +1,86 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%   _______________________________________________________               %
+%   _______________________________________________________               %
+%                                                                         %
+%   Technische Universität München                                        %
+%   Lehrstuhl für Statik, Prof. Dr.-Ing. Kai-Uwe Bletzinger               %
+%   _______________________________________________________               %
+%   _______________________________________________________               %
+%                                                                         %
+%                                                                         %
+%   Authors                                                               %
+%   _______________________________________________________________       %
+%                                                                         %
+%   Prof. Dr.-Ing. Kai-Uwe Bletzinger  (kub@tum.de)                       %
+%   Dr.-Ing. Roland Wüchner            (wuechner@tum.de)                  %
+%   Dipl.-Math. Andreas Apostolatos    (andreas.apostolatos@tum.de)       %
+%   Aditya Ghantasala (M.Sc)           (aditya.ghantasala@tum.de)         %
+%   _______________________________________________________________       %
+%                                                                         %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%   This function computes and returns the values of the shape functions
+%   for the given distribution of the control filed at a Gauss point
+%
+%   Input:
+%       GP                  : Gauss point coordinates at the current gauss
+%                             point of iteration.
+%       controlFiled        : The control field (element wise) for whose
+%                             distribution the shape function matrix should
+%                             be constructed.
+%
+%
+%   Output:
+%       P                   : The shape function matrix for the control
+%                             field.
+%
+%
+function [ P ] = obtainShapeFunctionValueAtGaussPoint(GP, nodes, controlField)
+
+%% Calculating the shape function matrix 
+%%% The question is ... is it so simple .. ?
+%%% Doesn't the control field has a say in this calculation.
+%%%  ... ????
+
+c1x = controlField(1);
+c1y = controlField(1);
+c2x = controlField(2);
+
+% Nodal coordinates
+x1 = nodes(1,1); x2 = nodes(2,1);
+y1 = nodes(1,2); y2 = nodes(2,2);
+% Length of the given element
+length = sqrt( (x1-x2)*(x1-x2) + (y1-y2)*(y1-y2) );
+
+dx = x1 - x2;
+dy = y1 - y2;
+dx = length;
+dy = length;
+
+
+if(dx~=0)
+    N1_x = 0.5 - GP(1)/dx;
+    N2_x = 0.5 + GP(1)/dx;
+else
+    N1_x = 0;
+    N2_x = 0;
+    N1_x = 0.5 - GP(1)/dx;
+    N2_x = 0.5 + GP(1)/dx;
+end
+
+if(dy~=0)
+    N1_y = 0.5 - GP(1)/dy;
+    N2_y = 0.5 + GP(1)/dy;
+else
+    N1_y = 0;
+    N2_y = 0;
+    N1_y = 0.5 - GP(1)/dy;
+    N2_y = 0.5 + GP(1)/dy;
+end
+
+P = [c1x*N1_x 0 c2x*N2_x 0;
+     0 c1x*N1_y 0 c2x*N2_y];
+
+% P = zeros(2,4);
+end
+

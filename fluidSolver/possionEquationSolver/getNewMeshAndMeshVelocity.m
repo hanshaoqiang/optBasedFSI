@@ -1,0 +1,140 @@
+function [mesh, meshVel] = getNewMeshAndMeshVelocity(meshIN, boundaryConditions, mBc, time, dt, geometry, physicsIN)
+%% Accumilation of all the functions to perform the FEM simulation.
+% Problem with results not proper is with the calculation of the Load
+% function.
+%
+% #############
+%% Formulating the boundary displacements depending on time
+% #############
+<<<<<<< HEAD
+% drichletValVec = zeros(1,2*length(meshIN.nodes));
+drichletValVec = meshIN.meshDrichletValVec;
+% % % % % for i = 1:length(mBc)
+% % % % %     % Obtaining the x-Coordinate of node on bc
+% % % % %     x = meshIN.nodes(mBc(i),1);
+% % % % %     y = meshIN.nodes(mBc(i),2);
+% % % % %     drichletValVec(2*mBc(i)-1) = 0;
+% % % % %     sx = (sin(x));
+% % % % %     st = sin(10*time);
+% % % % %     %     st = 1;
+% % % % %     drichletValVec(2*mBc(i)) = disp;
+% % % % %     disp = 0.01*sx*st;
+% % % % % end
+=======
+drichletValVec = zeros(1,2*length(meshIN.nodes));
+for i = 1:length(mBc)
+    % Obtaining the x-Coordinate of node on bc
+    x = meshIN.nodes(mBc(i),1);
+    y = meshIN.nodes(mBc(i),2);
+    drichletValVec(2*mBc(i)-1) = 0;
+    sx = (sin(x));
+    st = sin(10*time);
+    %     st = 1;
+%     disp = 0.01*sx*st;
+    disp = 0.01*st;
+    drichletValVec(2*mBc(i)) = disp;
+end
+>>>>>>> d126eed2037da5c744024b59fa64ed894f481265
+% % % mesh = meshIN;
+% % %
+% % % yDisp = drichletValVec(2:2:end);
+% % %
+% % % %mesh.nodes(:,1) = mesh.nodes(:,1) + xDisp';
+% % % mesh.nodes(:,2) = mesh.nodes(:,2) + yDisp';
+% % % meshVel = zeros(1, 2*length(mesh.nodes));
+
+
+<<<<<<< HEAD
+physics.diffCoeff = physicsIN.meshDiffCoeff;
+=======
+physics.diffCoeff = 1;
+>>>>>>> d126eed2037da5c744024b59fa64ed894f481265
+% Number of GPs are curently restricted to 1, 3, 4 and 7
+physics.numGP = 4;
+numDOF = 0;
+% #############
+%% Definition of Initernal Heat Generation (LOAD)
+% ###########
+Q.x = @(x,y)(0);
+Q.y = @(x,y)(0);
+% #############
+
+% #############
+%% Boundary conditions
+% #############
+% LEFT
+
+% ############
+%% Generating the Global Stiffness matrix
+% ############
+[K,M] = ComputeGlobalStiffnessMatrix(physics.diffCoeff, meshIN);
+G = M + dt*K;
+
+% Formulating the current position vector from the mesh
+
+U = meshIN.displacement;
+
+% Formulating the RHS of the equation system
+RHS = M*U;
+
+% ############
+%% Generating the free displacement numbers
+% ############
+DOFs = 1:2*length(meshIN.nodes);
+notFreeDOFs = [2*mBc-1; 2*mBc; (2*meshIN.nodesOnBoundary-1); (2*meshIN.nodesOnBoundary)];
+freeDOFs = setdiff(DOFs, notFreeDOFs);
+
+% ############
+%% Apply Boundary Conditions
+% ############
+RHS = RHS - G*drichletValVec';
+
+
+% ############
+%% Solving the system of equations for Constants using Matlab default solver
+% ############
+newDisplacements = zeros(1,2*length(meshIN.nodes));
+solVector = G(freeDOFs, freeDOFs) \ RHS(freeDOFs);
+newDisplacements(freeDOFs) = solVector;
+
+% Imposing boundary conditions on the calculated solution
+newDisplacements(2*mBc-1) = drichletValVec(2*mBc-1);
+newDisplacements(2*mBc) = drichletValVec(2*mBc);
+newDisplacements(2*meshIN.nodesOnBoundary-1) = 0;
+newDisplacements(2*meshIN.nodesOnBoundary) = 0;
+
+% % % Making the displacement on the other than specified boundary nodes zero
+% % aleBC.number_of_segments = 1;
+% % aleBC.segmentu(1,:) = [0 1];
+% % aleBC.segmentv(1,:) = [1 1];
+% % aleBC.tolerance_search = 1e-8;
+% % aleBC.increment = 1e-3;
+% % aleBC.tolerance_points = 1e-2;
+% % bc = getNodesOnParametricLine(geometry.p,geometry.U,geometry.q, ...
+% %                                 geometry.V,geometry.CP,aleBC,meshIN);
+% % 
+% % %bcDOFs = [boundaryConditions.; 2*meshIN.nodesOnBoundary];
+% % %otherBcDOFs = setdiff(bcDOFs, notFreeDOFs);
+% % otherBcDOFs = [2*bc-1, 2*bc];
+% % newDisplacements(otherBcDOFs) = drichletValVec(otherBcDOFs);
+
+mesh = meshIN;
+% Updating the positions of the nodes in the mesh using the above
+% calculated displacements
+xDisp = newDisplacements(1:2:end);
+yDisp = newDisplacements(2:2:end);
+
+mesh.nodes(:,1) = mesh.nodes(:,1) + xDisp';
+mesh.nodes(:,2) = mesh.nodes(:,2) + yDisp';
+%% Calculating the mesh velocity
+meshVel = zeros(2*length(mesh.nodes),1);
+RHSmv = -K*newDisplacements';
+meshVel(freeDOFs) = M(freeDOFs, freeDOFs) \ RHSmv(freeDOFs);
+
+% meshVel(otherBcDOFs) = 0;
+
+mesh.displacement = newDisplacements';
+
+end
+
+
