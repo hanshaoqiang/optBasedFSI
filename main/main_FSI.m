@@ -204,15 +204,6 @@ transient.noFluidItrFSI_inFPI = 1;
 transient.fsiProp.fsiResidual = 1e-9;
 % Maximum number of fixed point iterations
 transient.fsiProp.maxFpIterations = 35;
-% Type of residual for constant relaxation.
-%  1 --- based on force on fsi interface
-%  2 --- based on displacement of fsi interface
-transient.fsiProp.residualType = 2;
-
-% The entitiy on which relaxation is done during the Aitken relaxation
-% 1 -- on Forces
-% 2 -- on Structure displacements
-transient.fsiProp.aitkenResidualType = 2;
 
 % Relaxation factor for the Fixed point iterations
 transient.fsiProp.omega = 0.4;
@@ -224,16 +215,16 @@ physics_ale.rho = 1;
 %% Obtaining the mesh and boundary conditions for both FLUID and STRUCTURE from GID 
 [mesh_s, bc_s, mesh_f, bc_f, mesh_ale, bc_ale] = readMeshFromGID(casename,Ubar);
 
-%% Initializing the EMPIRE environment
-EMPIRE_CORE_BASE_DIR=getenv('EMPIRE_CORE_BASE_DIR');
-mexFuncPath=strcat(EMPIRE_CORE_BASE_DIR, '/interface/matlab/binICC');
-path(path, mexFuncPath);
-EMPIRE_API_Connect('matlabClient.xml');
-display(mexFuncPath);
+% %% Initializing the EMPIRE environment
+% EMPIRE_CORE_BASE_DIR=getenv('EMPIRE_CORE_BASE_DIR');
+% mexFuncPath=strcat(EMPIRE_CORE_BASE_DIR, '/interface/matlab/binICC');
+% path(path, mexFuncPath);
+% EMPIRE_API_Connect('matlabClient.xml');
+% display(mexFuncPath);
 % format specification in EMPIRE/EMPIRE-Testing/benchmark/FieldExamples/matlabExample/matlabClient.m
-empireMesh = obtainMeshToSendToEMPIRE(mesh_s); % Obtain the interface mesh to send to EMPIRE Format should be followed.
-EMPIRE_API_sendMesh('',empireMesh.numNodes, empireMesh.numElems, empireMesh.nodes,...
-                     empireMesh.nodeIDs, empireMesh.numNodesPerElem, empireMesh.elems); % Send mesh to EMPIRE
+% empireMesh = obtainMeshToSendToEMPIRE(mesh_s); % Obtain the interface mesh to send to EMPIRE Format should be followed.
+% EMPIRE_API_sendMesh('',empireMesh.numNodes, empireMesh.numElems, empireMesh.nodes,...
+%                      empireMesh.nodeIDs, empireMesh.numNodesPerElem, empireMesh.elems); % Send mesh to EMPIRE
 
 %% Solving the FSI problem by a call to the solver
 solve_FSIProblemBossakScheme2D(mesh_f, bc_f, fphysics, mesh_s, bc_s, sphysics, mesh_ale, bc_ale, physics_ale, transient);

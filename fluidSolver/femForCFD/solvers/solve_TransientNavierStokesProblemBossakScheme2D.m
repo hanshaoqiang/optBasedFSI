@@ -26,8 +26,6 @@ function [up, upRate, fFSI] = solve_TransientNavierStokesProblemBossakScheme2D(m
 %
 %% Function main body
 
-reverseStrNR = '';
-
 nDoFs = 3*length(mesh.nodes);
 % Initialize the global flux vector
 F = zeros(nDoFs,1);
@@ -85,7 +83,6 @@ for i_newton = 1:physics.nonLinearScheme.maxIter
     
      %% Check condition for convergence on the residual vector
     residualNorm = norm(RHS(bc.freeDOF));
-%     residualNorm = norm(dup);
     if residualNorm<=physics.nonLinearScheme.eps
         % Exit the Newton's loop after convergence
         break;
@@ -94,23 +91,11 @@ for i_newton = 1:physics.nonLinearScheme.maxIter
     
 end % End of Newton Iterations
 
-  if(residualNorm<=physics.nonLinearScheme.eps)
-    msgNR = sprintf('\t \t Newton iterations of Fluid Solver CONVERGED after %d iterations with residual ||Fres|| = %d \n',i_newton,residualNorm);
-    fprintf([reverseStrNR, msgNR]);
-    reverseStrNR = repmat(sprintf('\b'), 1, length(msgNR));
-  elseif(i_newton==physics.nonLinearScheme.maxIter)
-    msgNR = sprintf('\t \t Newton iterations of Fluid Solver DID NOT CONVERGE after %d iterations with residual ||Fres|| = %d \n',i_newton,residualNorm);
-    fprintf([reverseStrNR, msgNR]);
-    reverseStrNR = repmat(sprintf('\b'), 1, length(msgNR));
-  
-  end
-
-
-%% Delete and reset the output strings
-msgEmpty = sprintf('');
-reverseStrNR = repmat(sprintf('\b'), 1, length(msgNR));
-fprintf([reverseStrNR, msgEmpty]);
-
+if(residualNorm<=physics.nonLinearScheme.eps)
+    fprintf('\t \t Newton iterations of Fluid Solver CONVERGED after %d iterations with residual ||Fres|| = %d \n',i_newton,residualNorm);
+elseif(i_newton==physics.nonLinearScheme.maxIter)
+    fprintf('\t \t Newton iterations of Fluid Solver DID NOT CONVERGE after %d iterations with residual ||Fres|| = %d \n',i_newton,residualNorm);
+end
 
 %% Update the acceleration field accordingly
 upRate = (1/transient.gamma/dt)*(up - upPrevious) - ((1-transient.gamma)/transient.gamma)*upRatePrevious;

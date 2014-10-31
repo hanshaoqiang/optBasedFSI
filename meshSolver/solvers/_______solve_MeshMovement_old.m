@@ -11,8 +11,8 @@
 %   Authors                                                               %
 %   _______________________________________________________________       %
 %                                                                         %
-%   Aditya Ghantasala M.Sc             (aditya.ghantasala@tum.de)         %
 %   Dipl.-Math. Andreas Apostolatos    (andreas.apostolatos@tum.de)       %
+%   Aditya Ghantasala (M.Sc)           (aditya.ghantasala@tum.de)         %
 %   Dr.-Ing. Roland Wüchner            (wuechner@tum.de)                  %
 %   Prof. Dr.-Ing. Kai-Uwe Bletzinger  (kub@tum.de)                       %
 %   _______________________________________________________________       %
@@ -42,7 +42,7 @@ function [displacement, velocity, acceleration] = solve_MeshMovement(mesh, bc, p
 %% Function main body
 
 %% Setting up initial values required for simulation
-displacement = [];
+U = zeros(4*length(mesh.nodes),1);
 t = transient.Tstart;
 dt = transient.dt;
 F = zeros(4*length(mesh.nodes),1); % Force Vector 
@@ -51,8 +51,9 @@ F = zeros(4*length(mesh.nodes),1); % Force Vector
 bc.drichletVector = [bc.drichletVector; zeros(2*length(mesh.nodes),1) ];
 bc.drichletVector(bc.fsiDOF) = bc.fsiDisp;
 bc.drichletVector(2*length(mesh.nodes) + bc.fsiDOF) = bc.fsiVel;
-bc.drichletDOF = [bc.drichletDOF; 2*length(mesh.nodes) + bc.drichletDOF];
-bc.freeDOF = [bc.freeDOF, 2*length(mesh.nodes) + bc.freeDOF];
+% bc.drichletDOF = [bc.drichletDOF; 2*length(mesh.nodes) + bc.drichletDOF];
+% bc.freeDOF  = [bc.freeDOF, 2*length(mesh.nodes) + bc.freeDOF];
+bc.freeDOF  = setdiff(1:4*length(mesh.nodes), bc.drichletDOF);
 
 %% Formulating previous U
 Uprev = [dispPrevious; velPrevious];
@@ -92,7 +93,7 @@ U(bc.freeDOF) = G(bc.freeDOF,bc.freeDOF)\RHS(bc.freeDOF);
 
 %% 4. Assemble to the complete displacement vector
 U(bc.drichletDOF) = bc.drichletVector(bc.drichletDOF);
-U = U';
+
 
 %% Computing the velocity
 Udot = a*(U - Uprev) - d*UdotPrev;

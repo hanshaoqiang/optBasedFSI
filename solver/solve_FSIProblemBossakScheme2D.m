@@ -155,7 +155,7 @@ while(t<=transient.Tend)
         noFluidItrFSI = transient.noFluidItrFSI;
         
         for i_f = 1:noFluidItrFSI
-            [up, upRate, force_fsi, ~] = solve_TransientNavierStokesProblemBossakScheme2D(mesh_f, bc_f, physics_f, transient_f, up, upRate);
+            [up, upRate, force_fsi] = solve_TransientNavierStokesProblemBossakScheme2D(mesh_f, bc_f, physics_f, transient_f, up, upRate);
         end
         
         % Scalling the force acting on FSI interface
