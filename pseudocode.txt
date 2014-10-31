@@ -1,6 +1,6 @@
 /*
  * ================================================
- * Pseudo code of the server (EMPEROR)
+ * Pseudo code of the server (EMPEROR) edit
  * ================================================
  */
 int main() {
