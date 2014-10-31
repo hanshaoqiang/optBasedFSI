@@ -81,8 +81,8 @@ fprintf('\n');
 % Compute the number of degrees of freedom
 fnDoFs = 3*length(mesh_f.nodes); % number of DOF for fluid solver
 F = zeros(fnDoFs,1); % Initialize the global flux vector
-up = zeros(length(F),1);% Get the initial condition for the pressure and velocity field 
-%up = readInitialConditionsFromVTK('InitialValues'); % up = ones(length(F),1);
+%up = zeros(length(F),1);% Get the initial condition for the pressure and velocity field 
+up = readInitialConditionsFromVTK('Initial'); % up = ones(length(F),1);
 upRate = zeros(length(F),1);% Assume that the pressure and velocity rate is zero initially
 
 %%%%%%%%%%%%%%%%%%%%% FLUID MESH %%%%%%%%%%%%%%%%%%%%
@@ -124,7 +124,7 @@ while(t<=transient.Tend)
     timeTitle = sprintf(' \n \n \n \t \t ::::::: TIME t = %d ::::::: \n \n',t);
     fprintf(timeTitle);
     % Starting fixed point iterations
-    if(transient.i > 25)      
+    if(transient.i > 5)      
         %% Performing the fixed point iterations to obtain the converged solution
         % This method solves for strucuture,
         % fluid, and mesh movement in every fixed point iteration and
@@ -148,7 +148,7 @@ while(t<=transient.Tend)
     
     %% %%%%%%%%%%%%%%%%% SOLVING FLUID PROBLEM %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
-    if(transient.i <= 25)
+    if(transient.i <= 5)
         fprintf('######################## SOLVING THE FLUID PROBLEM #########################\n');
         
         transient_f = transient;
@@ -163,10 +163,6 @@ while(t<=transient.Tend)
             force_fsi = force_fsi*(1-cos(pi*t));
         end
         disp_fsi = zeros(length(mesh_s.fsiDOF),1);
-    end
-    
-    if(transient.i >= 40)
-      transient.noFluidItrFSI_inFPI = 25;
     end
     
     

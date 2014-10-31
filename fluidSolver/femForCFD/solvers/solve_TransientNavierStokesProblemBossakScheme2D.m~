@@ -125,6 +125,6 @@ forceUn_new = K*up_new;
 % Calculating the gradient
 df = forceUn_new - forceUn;
 dfdup_fd = df./delta;
-dfdup_fsi_fd = dfdup_fd(mesh.fsiDOF);
+dfdup_fsi_fd = df
 
 end % End of time loop
