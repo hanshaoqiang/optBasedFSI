@@ -148,7 +148,7 @@ fphysics.nonLinearScheme.maxIter = 15;
 %% Physical properties of Structure
 
 % Young's modulus
-sphysics.E = 2.0*1e6;
+sphysics.E = 0.50*1e6;
 
 % Poisson ratio
 sphysics.nu = 0.4;
