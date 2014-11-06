@@ -124,7 +124,7 @@ while(t<=transient.Tend)
     timeTitle = sprintf(' \n \n \n \t \t ::::::: TIME t = %d ::::::: \n \n',t);
     fprintf(timeTitle);
     % Starting fixed point iterations
-    if(transient.i > 5)      
+    if(transient.i > 1)      
         %% Performing the fixed point iterations to obtain the converged solution
         % This method solves for strucuture,
         % fluid, and mesh movement in every fixed point iteration and
@@ -148,7 +148,7 @@ while(t<=transient.Tend)
     
     %% %%%%%%%%%%%%%%%%% SOLVING FLUID PROBLEM %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
-    if(transient.i <= 5)
+    if(transient.i <= 1)
         fprintf('######################## SOLVING THE FLUID PROBLEM #########################\n');
         
         transient_f = transient;

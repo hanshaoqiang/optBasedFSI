@@ -58,7 +58,7 @@ while(current_residual>fsiProp.fsiResidual && iter_count < fsiProp.maxFpIteratio
     fprintf('\t \t FIXED POINT ITERATION Number :: %d \n', iter_count);
     %% %%%%%%%%%%%%%%%%% SOLVING STRUCTURAL PROBLEM %%%%%%%%%%%%%%%%%%%%%%%%
     fprintf('######################## SOLVING THE STRUCTURAL PROBLEM #########################\n');
-    [disp_str_fp, str_vel_fp, str_acc_fp] = solve_TransientPlateInMembraneAction(mesh_s, bc_s, physics_s, transient, str_disp, str_vel, str_acc, fFSI_fp);
+    [disp_str_fp, str_vel_fp, str_acc_fp,dUdot_dU_fsi] = solve_TransientPlateInMembraneAction(mesh_s, bc_s, physics_s, transient, str_disp, str_vel, str_acc, fFSI_fp);
     % Extracting the velocity and displacements on the FSI interface
     disp_fsi_fp                     = disp_str_fp(mesh_s.fsiDOF);
     vel_fsi_fp                      = str_vel_fp(mesh_s.fsiDOF);
@@ -114,7 +114,7 @@ while(current_residual>fsiProp.fsiResidual && iter_count < fsiProp.maxFpIteratio
     bc_ale.fsiVel               = vel_fsi_fp;
     
     %%% TODO :: Check if the mesh motion solver uses the velocity vel_fsi_fp as boundary condition. If it is using then make it not to use
-    [fmeshDisp_fp, fmeshVel_fp, fmeshAcc_fp] = solve_MeshMovement(mesh_ale, bc_ale, physics_ale, transient, fmeshDisp, fmeshVel, fmeshAcc);
+    [fmeshDisp_fp, fmeshVel_fp, fmeshAcc_fp] = solve_MeshMovement(mesh_ale, bc_ale, physics_ale, transient, fmeshDisp, fmeshVel, fmeshAcc,dUdot_dU_fsi);
     %%% Extracting the velocity and displacement vectors after mesh
     %%% movement and assigning the mesh velocity
     mesh_f.velocity(1:3:end)    = fmeshVel_fp(1:2:end); % X component

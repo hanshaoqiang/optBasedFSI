@@ -18,7 +18,7 @@
 %   _______________________________________________________________       %
 %                                                                         %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-function [displacement, velocity, acceleration,sens_fsi] = solve_TransientPlateInMembraneAction(mesh, bc, physics, transient, dispPrevious, velPrevious, accPrevious, fFSI)
+function [displacement, velocity, acceleration,dUdot_dU_fsi] = solve_TransientPlateInMembraneAction(mesh, bc, physics, transient, dispPrevious, velPrevious, accPrevious, fFSI)
 %% Function documentation
 %
 % Returns the displacement field corresponding to a plain stress/strain
@@ -145,8 +145,7 @@ RHS_ses = -1*[G_disp_disp*eye(2*length(mesh.nodes));
           
 % Solving for sensitivities
 sens = L\RHS_ses;
-sens = sens(1:2*length(mesh.nodes),:);
-sens_fsi = sens(mesh.fsiDOF,mesh.fsiDOF);
+sens = sens(1:2*length(mesh.))
 
 %dUdot_dU = -1*(G_vel_vel\G_vel_disp);
 
@@ -172,9 +171,9 @@ U_new(bc_test.drichletDOF) = bc_test.drichletVector(bc_test.drichletDOF);
 
 % Calculating diff
 diff = U_new(velDOF) - U(velDOF);
-
+diff = diff(2*length(mesh.nodes)+1:4*length(mesh.nodes));
 dUdot_dU_fd = diff./delta;
-dUdot_dU_3 = full(sens(:,nodeDOF));
+dUdot_dU_3 = full(dUdot_dU(:,nodeDOF));
 
 
 

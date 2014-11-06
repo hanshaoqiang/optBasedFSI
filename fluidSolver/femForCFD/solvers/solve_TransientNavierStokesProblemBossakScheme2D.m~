@@ -103,28 +103,35 @@ upRate = (1/transient.gamma/dt)*(up - upPrevious) - ((1-transient.gamma)/transie
 
 % Because the NS equations are scaled by Density. To find actuall forces
 % we scale the pressure back with Density.
-forceUn = (K*up);
-%forceUn = physics.rho.*(M*upRate + K*up);
+%forceUn = (K*up);
+forceUn = physics.rho.*(M*upRate + K*up);
 fFSI = -1*forceUn(mesh.fsiDOF);
 
 %%% Calculating the variation of forces(R_s) with DOF of fluid.
-dfdup = K;
-dfdup_fsi = dfdup(mesh.fsiDOF,:);
+dfdup = physics.rho.*(M*(1/transient.gamma/dt) + K);
+% Formulating the vector of DOF of the whole
+fsiDOFfull = zeros(3*length(mesh.fsiNodes),1);
+fsiDOFfull(1:3:end) = 3*mesh.fsiNodes -2;
+fsiDOFfull(2:3:end) = 3*mesh.fsiNodes -1;
+fsiDOFfull(3:3:end) = 3*mesh.fsiNodes ;
+dfdup_fsi = dfdup(fsiDOFfull,:);
 
-%% Verification of sensitivity with finite difference.
+% %% Verification :: DONE of sensitivity with finite difference.
 % copy of up
 up_new = up;
 % Changing the second FSI node's x velocity by delta
-delta = 1E-6;
-intFaceNode = mesh.fsiNodes(2);
+delta = 1E-1;
+intFaceNode = mesh.fsiNodes(84);
 % Changing the Ux a the intFaceNode
 up_new(3*intFaceNode-2) = up(3*intFaceNode-2)+delta;
 % Calculating new acceleration
+upRate_new = (1/transient.gamma/dt)*(up_new - upPrevious) - ((1-transient.gamma)/transient.gamma)*upRatePrevious;
 % Calculating the new forces.
-forceUn_new = K*up_new;
+forceUn_new = physics.rho.*(M*upRate_new + K*up_new);
 % Calculating the gradient
 df = forceUn_new - forceUn;
 dfdup_fd = df./delta;
-dfdup_fsi_fd = df
+
+dfdup_fsi_3 =full(dfdup_fsi(:,3*84-2));
 
 end % End of time loop

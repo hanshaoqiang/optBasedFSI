@@ -177,7 +177,7 @@ for p = 1 : 20
     y = (U_new - U)./delta;
     mesh_ses_fd(:,p) = y(elseDOF_disp);
     
-    err(p) = norm(mesh_ses_fd(:,p) - mesh_ses_3, inf);
+    err(p) = norm((mesh_ses_fd(:,p) - mesh_ses_3), inf);
 end
 
 
