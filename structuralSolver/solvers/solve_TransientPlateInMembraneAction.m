@@ -18,7 +18,7 @@
 %   _______________________________________________________________       %
 %                                                                         %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-function [displacement, velocity, acceleration,sens_fsi] = solve_TransientPlateInMembraneAction(mesh, bc, physics, transient, dispPrevious, velPrevious, accPrevious, fFSI)
+function [displacement, velocity, acceleration,sens_fsi,Vel_new] = solve_TransientPlateInMembraneAction(mesh, bc, physics, transient, dispPrevious, velPrevious, accPrevious, fFSI)
 %% Function documentation
 %
 % Returns the displacement field corresponding to a plain stress/strain
@@ -129,7 +129,6 @@ acceleration = Udot(2*length(mesh.nodes)+1:end);
 % % % % % % % % % % % RHS_ses = -G*DeMat;
 % % % % % % % % % % % % Solving for sensitivities
 % % % % % % % % % % % x(2*length(mesh.nodes)+1:4*length(mesh.nodes),:) = G(2*length(mesh.nodes)+1:4*length(mesh.nodes),2*length(mesh.nodes)+1:4*length(mesh.nodes))\RHS_ses(2*length(mesh.nodes)+1:4*length(mesh.nodes),:);
-
 dispDOF  = 1:2*length(mesh.nodes);
 velDOF = 2*length(mesh.nodes)+1 : 4*length(mesh.nodes);
 G_vel_vel   = G(velDOF,velDOF);
@@ -148,37 +147,25 @@ sens = L\RHS_ses;
 sens = sens(1:2*length(mesh.nodes),:);
 sens_fsi = sens(mesh.fsiDOF,mesh.fsiDOF);
 
-%dUdot_dU = -1*(G_vel_vel\G_vel_disp);
-
 %%% Verifying the above with finite difference.
-U_new = U;
-RHS_new = F - P*(b*UdotPrev - c*Uprev);
-delta = 1E-5;
-bc_test = bc;
+delta = 1E-4;
 % Petrubing Disp on Drichlet BC
-%nodeDOF = bc.drichletDOF(25);
-nodeDOF = 2*mesh.fixedNodes(2);
-bc_test.drichletVector(nodeDOF) = bc.drichletVector(nodeDOF) + delta;
+nodeDOF = 2*mesh.fsiNodes(10);
 % Solving for new velocity.
-% Applying the Drichlet boundary conditions
-RHS_new = RHS_new - G * bc_test.drichletVector;
+% Extracting the displacement vector from Drichlet Vector
+U_new = U(1:2*length(mesh.nodes));
+Vel_old = U(2*length(mesh.nodes)+1:4*length(mesh.nodes));
+U_new(nodeDOF) = U_new(nodeDOF) + delta;
 
-% 3. Compute displacement vector
-U_new(bc_test.freeDOF) = G(bc_test.freeDOF,bc_test.freeDOF)\RHS_new(bc_test.freeDOF);
-
-% 4. Assemble to the complete displacement vector
-U_new(bc_test.drichletDOF) = bc_test.drichletVector(bc_test.drichletDOF);
-
+% Using the changed displacement to calculate the new velocity
+Vel_new = -G_disp_vel\(G_disp_disp*U_new);
 
 % Calculating diff
-diff = U_new(velDOF) - U(velDOF);
+diff = Vel_new - Vel_old;
 
 dUdot_dU_fd = diff./delta;
 dUdot_dU_3 = full(sens(:,nodeDOF));
 
-
-
-
-
-
+% Extracting only the fsi velocity
+Vel_new = Vel_new(mesh.fsiDOF);
 end
