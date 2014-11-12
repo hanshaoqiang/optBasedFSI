@@ -127,119 +127,38 @@ clear formulatedFMeshResult
 fsiDOF = zeros(2*length(mesh.fsiNodes),1);
 fsiDOF(1:2:end) = 2*mesh.fsiNodes-1;
 fsiDOF(2:2:end) = 2*mesh.fsiNodes;
-elseDOF = setdiff(1:2*length(mesh.nodes),fsiDOF);
+elseDOF = setdiff(1:2*length(mesh.nodes),fsiDOF); % This is not correct because it should not contain the fixed wall DOFs
 
-
-% % % % fsiDOF_disp = bc.fsiDOF;
-% % % % 
-% % % % elseDOF_disp= setdiff(1:2*length(mesh.nodes), fsiDOF_disp);
-% % % % fsiDOF_vel  = 2*length(mesh.nodes) + bc.fsiDOF;
-% % % % elseDOF_vel = setdiff(2*length(mesh.nodes)+1:4*length(mesh.nodes), fsiDOF_vel);
-
-% % % % % % % Extracting corresponding parts from G matrix
-% % % % % % G_dede      = full(G(elseDOF_disp,elseDOF_disp));
-% % % % % % G_didi      = full(G(fsiDOF_disp,fsiDOF_disp));
-% % % % % % G_dpedpe    = full(G(elseDOF_vel, elseDOF_vel));
-% % % % % % G_dpidpi    = full(G(fsiDOF_vel,fsiDOF_vel));
-% % % % % % G_dedi      = full(G(elseDOF_disp,fsiDOF_disp));
-% % % % % % G_dide      = full(G(fsiDOF_disp,elseDOF_disp));
-% % % % % % G_dpedpi    = full(G(elseDOF_vel,fsiDOF_vel));
-% % % % % % G_dpidpe    = full(G(fsiDOF_vel,elseDOF_vel));
-% % % % % % G_dpedi     = full(G(elseDOF_vel,fsiDOF_disp));
-% % % % % % G_dpidi     = full(G(fsiDOF_vel,fsiDOF_disp));
-% % % % % % 
-% % % % % % L = [G_dpedpe G_dpedpi;
-% % % % % %      G_dpidpe G_dpidpi ];
-% % % % % % I = eye(length(bc.fsiDOF));
-% % % % % % 
-% % % % % % R1 = -1*[G_dpedi*I;         G_dpidi*I];
-% % % % % % R2 = -1*[G_dpedpi*duip_dui; G_dpidpi*duip_dui];
-% % % % % % 
-%B = [G_dede G_dedi; G_dide G_didi];% % % % % % R = R1+R2;
-% % % % % % mesh_ses = (L^-1) * R;
-%% Full analysis with disp and velocity
-% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % mesh_ses = zeros(4*length(mesh.nodes),length(fsiDOF_disp));
-% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % DeMat = zeros(4*length(mesh.nodes), length(fsiDOF_disp));
-% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % DeMat(fsiDOF_disp,:) = eye(length(fsiDOF_disp));
-% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % DeMat(fsiDOF_vel,:)  = duip_dui;
-% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % RHS_ses = -G*DeMat;
-% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % Solving for sensitivity
-% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % free_ses_dof = [elseDOF_disp,elseDOF_vel];
-% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % x = G(free_ses_dof,free_ses_dof)\RHS_ses(free_ses_dof,:);
-% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % mesh_ses(free_ses_dof,:) = x;
-% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % Putting bc again in
-% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % mesh_ses(fsiDOF_disp,:) = eye(length(fsiDOF_disp));
-% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % mesh_ses(fsiDOF_vel,:)  = duip_dui;
-% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % mesh_ses_1 = mesh_ses(elseDOF_disp,:);
-% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % fsiNode = 10;
-% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % mesh_ses_3  = full(mesh_ses_1(:,2*fsiNode));
-% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % 
-% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % delta = 10^(-4);
-% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % bc_new = bc;
-% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % U_new = zeros(4*length(mesh.nodes),1);
-% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % RHS_new = F - P*(b*UdotPrev - c*Uprev);
-% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %FSI DOF to pertrub.
-% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % pet_node = mesh.fsiNodes(fsiNode);
-% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % pet_DOF = 2*pet_node;
-% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %Petrubing
-% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % bc_new.drichletVector(pet_DOF) = bc_new.drichletVector(pet_DOF) + delta;
-% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % 
-% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % 
-% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % Apply the velocity with pretrubed displacements as Drichlet velocity.
-% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % bc_new.drichletVector(2*length(mesh.nodes) + bc.fsiDOF) = petVel;
-% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % 
-% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %Applying the Drichlet boundary conditions
-% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % RHS_new = RHS_new - G * bc_new.drichletVector;
-% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % 
-% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %3. Compute displacement vector
-% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % U_new(bc_new.freeDOF) = G(bc_new.freeDOF,bc_new.freeDOF)\RHS_new(bc_new.freeDOF);
-% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % 
-% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % 
-% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %4. Assemble to the complete displacement vector
-% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % U_new(bc_new.drichletDOF) = bc_new.drichletVector(bc_new.drichletDOF);
-% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % 
-% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %Calcualting the gradient
-% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % y = (U_new - U)./delta;
-% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % y = y(elseDOF_disp);
-% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % err = norm(y - mesh_ses_3, inf)
 %% Analysis by neglecting velocity
-% % G_dede      = K(elseDOF,elseDOF);
-% % G_dedi      = K(elseDOF,fsiDOF);
-% % G_didi      = K(fsiDOF, fsiDOF);
-% % G_dide      = K(fsiDOF, fsiDOF);
-% % mesh_ses    = -1*G_dede\G_dedi;
-UK = zeros(2*length(mesh.nodes),1);
-UK(2*mesh.fsiNodes(20),1) = 1;
+UK = zeros(2*length(mesh.nodes),2*length(mesh.fsiNodes));
+UK(fsiDOF,:) = eye(length(fsiDOF));
 rhs = -K*UK;
-mesh_ses= zeros(2*length(mesh.nodes),1);
-mesh_ses(elseDOF) = K(elseDOF,elseDOF)\rhs(elseDOF);
-mesh_ses(2*mesh.fsiNodes(20),:) = 1;
+mesh_ses = zeros(2*length(mesh.nodes),2*length(mesh.fsiNodes));
+mesh_ses(bc_bu.freeDOF,:) = K(bc_bu.freeDOF,bc_bu.freeDOF)\rhs(bc_bu.freeDOF,:);
+mesh_ses(fsiDOF,:) = eye(length(fsiDOF));
 
 
 % Finite difference
-delta = 1E-5;
+delta = 1E-4;
 pet_node = mesh.fsiNodes(20);
 pet_DOF = 2*pet_node;
 B = K;
 bc_bu.drichletVector(bc_bu.fsiDOF) = bc_bu.fsiDisp;
-dv = zeros(2*length(mesh.nodes),1);
-dv(2*mesh.fsiNodes(20),1) = 10000000;
-rhs = -B*dv;
+rhs = -B*bc_bu.drichletVector;
 % Solving
 displac(bc_bu.freeDOF) = B(bc_bu.freeDOF,bc_bu.freeDOF)\rhs(bc_bu.freeDOF);
-displac(1,2*mesh.fsiNodes(20)) = 10000000;
+displac(bc_bu.drichletDOF) = bc_bu.drichletVector(bc_bu.drichletDOF);
 
 % Perturbing the fsiNode
-dv(2*mesh.fsiNodes(20),1) = dv(2*mesh.fsiNodes(20),1) + delta;
 bc_bu.drichletVector(pet_DOF) = bc_bu.drichletVector(pet_DOF) + delta;
-rhs = -B*dv;
+rhs = -B*bc_bu.drichletVector;
 % Solving
 displac_pert(bc_bu.freeDOF) = B(bc_bu.freeDOF,bc_bu.freeDOF)\rhs(bc_bu.freeDOF);
-displac_pert(1,2*mesh.fsiNodes(20)) = dv(2*mesh.fsiNodes(20),1) + delta;
+displac_pert(bc_bu.drichletDOF) = bc_bu.drichletVector(bc_bu.drichletDOF);
 
 mesh_sens_fd = (displac_pert - displac)./delta;
 mesh_sens_fd = mesh_sens_fd';
-mesh_sens_ana = mesh_ses(:,:);
+mesh_sens_ana = mesh_ses(:,40);
 
 
 end

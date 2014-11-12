@@ -208,39 +208,36 @@ elseDOF = setdiff(1:2*length(mesh.nodes),fsiDOF);
 % % G_didi      = K(fsiDOF, fsiDOF);
 % % G_dide      = K(fsiDOF, fsiDOF);
 % % mesh_ses    = -1*G_dede\G_dedi;
-UK = zeros(2*length(mesh.nodes),1);
-UK(2*mesh.fsiNodes(20),1) = 1;
+UK = zeros(2*length(mesh.nodes),2*length(mesh.fsiNodes));
+UK(fsiDOF,:) = eye(length(fsiDOF));
 rhs = -K*UK;
-mesh_ses= zeros(2*length(mesh.nodes),1);
-mesh_ses(elseDOF) = K(elseDOF,elseDOF)\rhs(elseDOF);
-mesh_ses(2*mesh.fsiNodes(20),:) = 1;
+mesh_ses = zeros(2*length(mesh.nodes),2*length(mesh.fsiNodes));
+mesh_ses(bc_bu.freeDOF,:) = K(bc_bu.freeDOF,bc_bu.freeDOF)\rhs(bc_bu.freeDOF,:);
+mesh_ses(fsiDOF,:) = eye(length(fsiDOF));
 
 
 % Finite difference
-delta = 1E-5;
+delta = 1E-4;
 pet_node = mesh.fsiNodes(20);
 pet_DOF = 2*pet_node;
 B = K;
 bc_bu.drichletVector(bc_bu.fsiDOF) = bc_bu.fsiDisp;
-dv = zeros(2*length(mesh.nodes),1);
-dv(2*mesh.fsiNodes(20),1) = 10000000;
-rhs = -B*dv;
+rhs = -B*bc_bu.drichletVector;
 % Solving
 displac(bc_bu.freeDOF) = B(bc_bu.freeDOF,bc_bu.freeDOF)\rhs(bc_bu.freeDOF);
-displac(1,2*mesh.fsiNodes(20)) = 10000000;
+displac(bc_bu.drichletDOF) = bc_bu.drichletVector(bc_bu.drichletDOF);
 
 % Perturbing the fsiNode
-dv(2*mesh.fsiNodes(20),1) = dv(2*mesh.fsiNodes(20),1) + delta;
 bc_bu.drichletVector(pet_DOF) = bc_bu.drichletVector(pet_DOF) + delta;
-rhs = -B*dv;
+rhs = -B*bc_bu.drichletVector;
 % Solving
 displac_pert(bc_bu.freeDOF) = B(bc_bu.freeDOF,bc_bu.freeDOF)\rhs(bc_bu.freeDOF);
-displac_pert(2*mesh.fsiNodes(20),1) = dv(2*mesh.fsiNodes(20),1) + delta;
+displac_pert(bc_bu.drichletDOF) = bc_bu.drichletVector(bc_bu.drichletDOF);
 
 mesh_sens_fd = (displac_pert - displac)./delta;
 mesh_sens_fd = mesh_sens_fd';
 mesh_sens_fd = mesh_sens_fd(elseDOF);
-mesh_sens_ana = mesh_ses(:,:);
+mesh_sens_ana = mesh_ses(:,40);
 
 
 end
