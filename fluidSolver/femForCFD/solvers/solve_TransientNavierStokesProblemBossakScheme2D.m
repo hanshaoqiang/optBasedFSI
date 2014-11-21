@@ -107,7 +107,7 @@ upRate = (1/transient.gamma/dt)*(up - upPrevious) - ((1-transient.gamma)/transie
 forceUn = physics.rho.*(M*upRate + K*up);
 fFSI = -1*forceUn(mesh.fsiDOF);
 
-%%% Calculating the variation of forces(R_s) with DOF of fluid.
+%% Calculating the variation of forces(R_s) with DOF of fluid.
 dfdup = physics.rho.*(M*(1/transient.gamma/dt) + K);
 % Formulating the vector of DOF of the whole
 fsiDOFfull = zeros(3*length(mesh.fsiNodes),1);
@@ -133,5 +133,9 @@ dfdup_fsi = dfdup(fsiDOFfull,:);
 % % % % % % dfdup_fd = df./delta;
 % % % % % % 
 % % % % % % dfdup_fsi_3 =full(dfdup_fsi(3*intFaceNode-2,:));
+
+
+%% Calculating the sensitivity with respect to coordinates
+computeGlobalSensitivityMatricesIncompressibleNavierStokes2D(up, mesh, mesh.velocity, physics, transient);
 
 end % End of time loop

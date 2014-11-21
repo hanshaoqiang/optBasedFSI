@@ -50,10 +50,10 @@ Np = [0 0 GP(1) 0 0 GP(2) 0 0 GP(3)];
 
 
 %% Fourmulating the matrix dN
-% Its a 4x6 matrix
+% Its a 3x6 matrix
 dNp = [0 0 dN1_dx 0 0 dN2_dx 0 0 dN3_dx;
        0 0 dN1_dy 0 0 dN2_dy 0 0 dN3_dy;
-       0 0 0      0 0 0      0 0 0];      
+       0 0 0      0 0 0      0 0 0];     
 
    
 % End of the Function        
