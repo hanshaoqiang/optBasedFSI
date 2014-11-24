@@ -136,6 +136,7 @@ dfdup_fsi = dfdup(fsiDOFfull,:);
 
 
 %% Calculating the sensitivity with respect to coordinates
-computeGlobalSensitivityMatricesIncompressibleNavierStokes2D(up, mesh, mesh.velocity, physics, transient);
+%%% Verification is done inside this function itself at element level.
+[dKdx,dKTangentdx,dMdx,dFdx] = computeGlobalSensitivityMatricesIncompressibleNavierStokes2D(up, mesh, mesh.velocity, physics, transient);
 
 end % End of time loop

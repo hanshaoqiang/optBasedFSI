@@ -18,7 +18,7 @@
 %   _______________________________________________________________       %
 %                                                                         %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-function [dKedX, dKTedX, dMedX, dFedX] = computeElSensitivities(nodes, tau, physics, u, uGp, N, dN, dDotN, laplaceN, Np, dNp, dtauMdX, dtauCdX)
+function [dKedX, dKTedX, dMedX, dFedX] = computeElSensitivities(nodes, tau, physics, u, uGp, N, dN, dDotN, laplaceN, Np, dNp, dtauMdX, dtauCdX, transient)
 %% Function documentation
 %
 % Returns the element stiffness, tangent stiffness and mass matrix as well
@@ -27,6 +27,41 @@ function [dKedX, dKTedX, dMedX, dFedX] = computeElSensitivities(nodes, tau, phys
 %
 %% Function main body
 
+x1 = nodes(1,1);
+y1 = nodes(1,2);
+% NODE 2
+x2 = nodes(2,1);
+y2 = nodes(2,2);
+% NODE 3
+x3 = nodes(3,1);
+y3 = nodes(3,2);
+
+% Computing area
+area = 0.5*abs( x1*(y2-y3) + x2*(y3-y1) + x3*(y1-y2) );
+
+%% Calculating all the derivatives of the Shape functions
+% NOTE : Basis Function used are of Order 1
+% #############
+
+% Differential of Basis Function 1
+dN1_dx = (y2-y3)/(2*area);
+dN1_dy = (x3-x2)/(2*area);
+
+% Differential of Basis Function 2
+dN2_dx = (y3-y1)/(2*area);
+dN2_dy = (x1-x3)/(2*area);
+
+% Differential of Basis Function 3
+dN3_dx = (y1-y2)/(2*area);
+dN3_dy = (x2-x1)/(2*area);
+dDotN = [dN1_dx dN1_dy 0 dN2_dx dN2_dy 0 dN3_dx dN3_dy 0];
+%% Calculatingt the variation of shape funtions with coordinates
+%%% This will be a 6x6 matrix
+dNdX = getVariationOfVelocityShapeFunctionsWithCord(uGp, nodes);
+%%% QUESTION ... There should be variation of pressure shape function
+%%% also.Correct ... ??
+
+
 %% Predefining the variables necessary
 dN1dx = dDotN(1);
 dN1dy = dDotN(2);
@@ -34,6 +69,24 @@ dN2dx = dDotN(4);
 dN2dy = dDotN(5);
 dN3dx = dDotN(7);
 dN3dy = dDotN(8);
+
+
+
+%% Fourmulating the matrix dN
+% Its a 9x9 matrix
+dN = [dN1dx 0 0 dN2dx 0 0 dN3dx 0 0;
+      0 dN1dx 0 0 dN2dx 0 0 dN3dx 0;
+      0 0 0 0 0 0 0 0 0;
+      dN1dy 0 0 dN2dy 0 0 dN3dy 0 0;
+      0 dN1dy 0 0 dN2dy 0 0 dN3dy 0;
+      0 0 0 0 0 0 0 0 0;
+      0 0 0 0 0 0 0 0 0;
+      0 0 0 0 0 0 0 0 0;
+      0 0 0 0 0 0 0 0 0 ];
+  
+dNp = [0 0 dN1dx 0 0 dN2dx 0 0 dN3dx;
+       0 0 dN1dy 0 0 dN2dy 0 0 dN3dy;
+       0 0 0      0 0 0      0 0 0];     
 
 %
 u1x = u(1);
@@ -55,15 +108,184 @@ Gp3 = Np(9);
 ux = uGp(1);
 uy = uGp(2);
 
-%% Calculatingt the variation of shape funtions with coordinates
-%%% This will be a 6x6 matrix
-dNdX = getVariationOfVelocityShapeFunctionsWithCord(uGp, nodes);
-
 
 %% 3. Compute all necessary matrices and vectors
 tauM = tau(1,1); % Stabilization for momentum Equation
 tauC = tau(2,2); % Stabilization for Continuity Equation
 
+LopN1 = uGp(1)*dDotN(1)+uGp(2)*dDotN(2);
+LopN2 = uGp(1)*dDotN(4)+uGp(2)*dDotN(5);
+LopN3 = uGp(1)*dDotN(7)+uGp(2)*dDotN(8);
+
+BoperatorConvection = [ LopN1 0 0 LopN2 0 0 LopN3 0 0;
+    0 LopN1 0 0 LopN2 0 0 LopN3 0;
+    0 0 0 0 0 0 0 0 0 ];
+b = physics.bodyForce.magnitude*physics.bodyForce.direction;
+
+
+duN = [ u(1)* dDotN(1)+u(4)*dDotN(4)+u(7)*dDotN(7), u(2)*dDotN(1)+u(5)*dDotN(4)+u(8)*dDotN(7), 0;
+    u(1)* dDotN(2)+u(4)*dDotN(5)+u(7)*dDotN(8), u(2)*dDotN(2)+u(5)*dDotN(5)+u(8)*dDotN(8), 0;
+    0,                                          0,                                         0 ];
+CTangentBOperator = duN*N;
+% %% FD first 4 matrics
+De_b = (physics.nue*(dN'*dN)) * u;
+Ce_b = (N'*BoperatorConvection) * u;
+Pe_b = (-1*dDotN' * Np) * u;
+% val_b = De_b + Ce_b + Pe_b;
+Dd_b = (-1*(physics.nue^2)*(laplaceN'*laplaceN))*u;
+Dc_b = (physics.nue*(laplaceN'*BoperatorConvection))*u;
+Dp_b = (physics.nue*(laplaceN'*dNp))*u;
+Cd_b = (- (physics.nue*(laplaceN'*BoperatorConvection))')*u;
+Cc_b = (BoperatorConvection'*BoperatorConvection)*u;
+Cp_b = (BoperatorConvection'*dNp)*u;
+Pd_b = (- (physics.nue*(laplaceN'*dNp))')*u;
+Pp_b = (dNp'*dNp)*u;
+Pc_b = ((BoperatorConvection'*dNp)')*u;
+Div_b = (dDotN'*dDotN)*u;
+tauM_b = tauM; tauC_b = tauC;
+Mp_b = (dNp'*N)*u;
+Mc_b = (BoperatorConvection'*N) * u;
+
+val_b =  De_b + Ce_b + Pe_b + tauM_b*(Dd_b+ Dc_b + Dp_b + Cd_b + Cc_b + Cp_b + Pd_b + Pc_b + Pp_b) + tauC_b*Div_b;
+mval_b = tauM_b*(Mp_b + Mc_b);
+delta = 1E-8;
+% dDotN(4) = dDotN(4) + delta;
+% dN2dx = dN2dx + delta;
+y1 = y1 + delta;
+
+
+%% purt recalculation
+% Computing area
+area = 0.5*abs( x1*(y2-y3) + x2*(y3-y1) + x3*(y1-y2) );
+
+
+% Differential of Basis Function 1
+dN1_dx = (y2-y3)/(2*area);
+dN1_dy = (x3-x2)/(2*area);
+
+% Differential of Basis Function 2
+dN2_dx = (y3-y1)/(2*area);
+dN2_dy = (x1-x3)/(2*area);
+
+% Differential of Basis Function 3
+dN3_dx = (y1-y2)/(2*area);
+dN3_dy = (x2-x1)/(2*area);
+dDotN = [dN1_dx dN1_dy 0 dN2_dx dN2_dy 0 dN3_dx dN3_dy 0];
+
+dN1dx = dDotN(1);
+dN1dy = dDotN(2);
+dN2dx = dDotN(4);
+dN2dy = dDotN(5);
+dN3dx = dDotN(7);
+dN3dy = dDotN(8);
+
+dN = [dN1dx 0 0 dN2dx 0 0 dN3dx 0 0;
+      0 dN1dx 0 0 dN2dx 0 0 dN3dx 0;
+      0 0 0 0 0 0 0 0 0;
+      dN1dy 0 0 dN2dy 0 0 dN3dy 0 0;
+      0 dN1dy 0 0 dN2dy 0 0 dN3dy 0;
+      0 0 0 0 0 0 0 0 0;
+      0 0 0 0 0 0 0 0 0;
+      0 0 0 0 0 0 0 0 0;
+      0 0 0 0 0 0 0 0 0 ];
+  
+dNp = [0 0 dN1dx 0 0 dN2dx 0 0 dN3dx;
+       0 0 dN1dy 0 0 dN2dy 0 0 dN3dy;
+       0 0 0      0 0 0      0 0 0]; 
+LopN1 = uGp(1)*dDotN(1)+uGp(2)*dDotN(2);
+LopN2 = uGp(1)*dDotN(4)+uGp(2)*dDotN(5);
+LopN3 = uGp(1)*dDotN(7)+uGp(2)*dDotN(8);
+
+BoperatorConvection = [ LopN1 0 0 LopN2 0 0 LopN3 0 0;
+    0 LopN1 0 0 LopN2 0 0 LopN3 0;
+    0 0 0 0 0 0 0 0 0 ];
+b = physics.bodyForce.magnitude*physics.bodyForce.direction;
+
+
+duN = [ u(1)* dDotN(1)+u(4)*dDotN(4)+u(7)*dDotN(7), u(2)*dDotN(1)+u(5)*dDotN(4)+u(8)*dDotN(7), 0;
+    u(1)* dDotN(2)+u(4)*dDotN(5)+u(7)*dDotN(8), u(2)*dDotN(2)+u(5)*dDotN(5)+u(8)*dDotN(8), 0;
+    0,                                          0,                                         0 ];
+CTangentBOperator = duN*N;
+
+% EOF purt recalculation
+
+
+De_a = (physics.nue*(dN'*dN) ) * u;
+Ce_a = (N'*BoperatorConvection) * u;
+Pe_a = (-1*dDotN' * Np) * u;
+% val_a = De_a + Ce_a + Pe_a;
+% 
+Dd_a = (-1*(physics.nue^2)*(laplaceN'*laplaceN))*u;
+Dc_a = (physics.nue*(laplaceN'*BoperatorConvection))*u;
+Dp_a = (physics.nue*(laplaceN'*dNp))*u;
+Cd_a = (- (physics.nue*(laplaceN'*BoperatorConvection))')*u;
+Cc_a = (BoperatorConvection'*BoperatorConvection)*u;
+Cp_a = (BoperatorConvection'*dNp)*u;
+Pd_a = (- (physics.nue*(laplaceN'*dNp))')*u;
+Pp_a = (dNp'*dNp)*u;
+Pc_a = ((BoperatorConvection'*dNp)')*u;
+Div_a = (dDotN'*dDotN)*u;
+Mp_a = (dNp'*N)*u;
+Mc_a = (BoperatorConvection'*N) * u;
+
+nodes(1,2) = y1;
+[h, area] = getTriangularElementSizeAndArea(nodes);
+tauM_a = ( physics.stabilization.Ct/(transient.dt) + 2*norm(uGp)/h + 4*physics.nue/h^2 )^(-1);
+tauC_a = (physics.nue + 0.5*h*norm(uGp));
+val_a = De_a + Ce_a + Pe_a + tauM_a*(Dd_a+ Dc_a + Dp_a + Cd_a + Cc_a + Cp_a + Pd_a + Pc_a + Pp_a) + tauC_a*Div_a;
+mval_a = tauM_a*(Mp_a + Mc_a);
+
+% % val_a = De_a + Ce_a + Pe_a + tauM*(Dd_a+ Dc_a + Dp_a + Cd_a + Cc_a + Cp_a + Pd_a + Pc_a + Pp_a) + tauC*Div_a;
+% val_a = tauM_a * (Dd_b+ Dc_b + Dp_b + Cd_b + Cc_b + Cp_b + Pd_b + Pc_b + Pp_b);
+
+FD_taU = (tauM_a-tauM)/delta;
+
+FD = (val_a - val_b)/delta;
+FDM = (mval_a - mval_b)/delta;
+% FD = (Pp_a - Pp_b)/delta;
+
+
+%% taking back
+% dDotN(4) = dDotN(4) - delta;
+% dN2dx = dN2dx - delta;
+y1 = y1 - delta;
+nodes(1,2) = y1;
+area = 0.5*abs( x1*(y2-y3) + x2*(y3-y1) + x3*(y1-y2) );
+
+
+% Differential of Basis Function 1
+dN1_dx = (y2-y3)/(2*area);
+dN1_dy = (x3-x2)/(2*area);
+
+% Differential of Basis Function 2
+dN2_dx = (y3-y1)/(2*area);
+dN2_dy = (x1-x3)/(2*area);
+
+% Differential of Basis Function 3
+dN3_dx = (y1-y2)/(2*area);
+dN3_dy = (x2-x1)/(2*area);
+dDotN = [dN1_dx dN1_dy 0 dN2_dx dN2_dy 0 dN3_dx dN3_dy 0];
+
+dN1dx = dDotN(1);
+dN1dy = dDotN(2);
+dN2dx = dDotN(4);
+dN2dy = dDotN(5);
+dN3dx = dDotN(7);
+dN3dy = dDotN(8);
+
+dN = [dN1dx 0 0 dN2dx 0 0 dN3dx 0 0;
+      0 dN1dx 0 0 dN2dx 0 0 dN3dx 0;
+      0 0 0 0 0 0 0 0 0;
+      dN1dy 0 0 dN2dy 0 0 dN3dy 0 0;
+      0 dN1dy 0 0 dN2dy 0 0 dN3dy 0;
+      0 0 0 0 0 0 0 0 0;
+      0 0 0 0 0 0 0 0 0;
+      0 0 0 0 0 0 0 0 0;
+      0 0 0 0 0 0 0 0 0 ];
+  
+dNp = [0 0 dN1dx 0 0 dN2dx 0 0 dN3dx;
+       0 0 dN1dy 0 0 dN2dy 0 0 dN3dy;
+       0 0 0      0 0 0      0 0 0]; 
 LopN1 = uGp(1)*dDotN(1)+uGp(2)*dDotN(2);
 LopN2 = uGp(1)*dDotN(4)+uGp(2)*dDotN(5);
 LopN3 = uGp(1)*dDotN(7)+uGp(2)*dDotN(8);
@@ -306,18 +528,33 @@ Fc = -1*(BoperatorConvection');
 dFcdN = zeros(9,6); 
 dFcdX = dFcdN * dNdX;
 
+%% Anal till here
+
+analy = dDedX + dCedX + dPedX  + tauM*(dDddX + dDcdX + dDpdX + dCddX + dCcdX + dCpdX + dPddX + dPcdX + dPpdX) ...
+                                      + ( (Dd + Dc + Dp + Cd + Cc + Cp + Pd + Pc + Pp)*u )* dtauMdX'  ...
+                                      + tauC*dDivdX ...
+                                      + (Div*u)*dtauCdX';
+                                  
+manaly = dMdX + tauM*(dMddX + dMcdX + dMpdX) ...
+             + ((Md + Mc + Mp)*u)*dtauMdX';                            
+% analy = tauC*dDivdN;
+% analy =  ( (Dd + Dc + Dp + Cd + Cc + Cp + Pd + Pc + Pp)*u )* dtauMdX';
+erro = 100*(analy(:,2) - FD)/max(abs(FD))
+merro = 100*(manaly(:,2) - FDM)/max(abs(FDM))
+
+
 
 
 %% 12. Compute the element stiffness matrix
 % Linear stiffness matrix needed for the residual computation
-% Ke = De + Ce + Pe - Pe' + tauM*(Dd + Dc + Dp + Cd + Cc + Cp + Pd + Pc + Pp) + tauC*Div;
+Ke = De + Ce + Pe - Pe' + tauM*(Dd + Dc + Dp + Cd + Cc + Cp + Pd + Pc + Pp) + tauC*Div;
 dKedX = dDedX + dCedX + dPedX - dPvdX + tauM*(dDddX + dDcdX + dDpdX + dCddX + dCcdX + dCpdX + dPddX + dPcdX + dPpdX) ...
                                       + ( (Dd + Dc + Dp + Cd + Cc + Cp + Pd + Pc + Pp)*u )* dtauMdX'  ...
                                       + tauC*dDivdX ...
                                       + (Div*u)*dtauCdX';
 
 %% 13. Compute the element stabilized mass matrix
-% Me = M + tauM*(Md + Mc + Mp);
+Me = M + tauM*(Md + Mc + Mp);
 dMedX = dMdX + tauM*(dMddX + dMcdX + dMpdX) ...
              + ((Md + Mc + Mp)*u)*dtauMdX';
 
@@ -325,7 +562,7 @@ dMedX = dMdX + tauM*(dMddX + dMcdX + dMpdX) ...
 
 % Compute the complete right-hand side vector at the Gauss Point
 % Compute the force vector at the Gauss Point
-% Fe = (N' + tauM*(Fd + Fp + Fc))*b;
+Fe = (N' + tauM*(Fd + Fp + Fc))*b;
 dFedX = zeros(9,6);
 
 % End of function

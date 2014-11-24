@@ -120,11 +120,9 @@ for i = 1:length(mesh.elements)
         % Stabilization for the momentum equation
         if strcmp(physics.stabilization.parametersType,'automatic')
             tauM = ( physics.stabilization.Ct/(transient.dt) + 2*norm(relVelGP)/h + 4*physics.nue/h^2 )^(-1);
-%             tauM = (1/h + (1/h^2) )^(-1);
 %             tauM = ( (physics.stabilization.Ct/transient.dt)^2 + (4*physics.nue/(h^2))^2 + (2*norm(relVelGP)/h)^2 )^(-0.5);  % Based on INRIA paper
             tauM = tauM*physics.stabilization.scalingTauM; % Scalling
             dtauMdX = physics.stabilization.scalingTauM * (-(tauM^2)) * ( 0 + ((-2*norm(relVelGP))/(h^2))*(dhdX) + (-8*physics.nue/(h^3))*dhdX );
-%             dtauMdX = (-1/(tauM^2)) * ( 0 + ((-2*norm(relVelGP))/(h^2))*(dhdX) + (-8*physics.nue/(h^3))*dhdX );
             
             % Stabilization for the continuity equation
             tauC = (physics.nue + 0.5*h*norm(relVelGP));
@@ -153,10 +151,10 @@ for i = 1:length(mesh.elements)
         
         
         %% Weighing the sensitivities
-        dKedx = dKedx     +   dKedxOnGP*gWeight(j);
-        dKTedx = dKTedx   +   dKTedxOnGP*gWeight(j);
-        dMedx = dMedx     +   dMedxOnGP*gWeight(j);
-        dFedx = dFedx     +   dFedxOnGP*gWeight(j);
+        dKedx  = dKedx     +   dKedxOnGP*gWeight(j);
+        dKTedx = dKTedx    +   dKTedxOnGP*gWeight(j);
+        dMedx  = dMedx     +   dMedxOnGP*gWeight(j);
+        dFedx  = dFedx     +   dFedxOnGP*gWeight(j);
         
     end
     

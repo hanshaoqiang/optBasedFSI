@@ -18,7 +18,7 @@
 %   _______________________________________________________________       %
 %                                                                         %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-function [displacement, velocity, acceleration,sens_fsi,Vel_new] = solve_TransientPlateInMembraneAction(mesh, bc, physics, transient, dispPrevious, velPrevious, accPrevious, fFSI)
+function [displacement, velocity, acceleration,sens_fsi] = solve_TransientPlateInMembraneAction(mesh, bc, physics, transient, dispPrevious, velPrevious, accPrevious, fFSI)
 %% Function documentation
 %
 % Returns the displacement field corresponding to a plain stress/strain
@@ -31,17 +31,20 @@ function [displacement, velocity, acceleration,sens_fsi,Vel_new] = solve_Transie
 %                      interms of node numbering
 %            physics : The material properties of the structure
 %          transient : The properties time integration
-%       dispPrevious : displacement from previous time step
-%        velPrevious : velocity from previous time step
-%        accPrevious : acceleration in previous time step
+%       dispPrevious : displacement from previous time step.
+%        velPrevious : velocity from previous time step.
+%        accPrevious : acceleration in previous time step.
 %               fFSI : force vector on the FSI interface a calculated from
-%                      the fluid solver
+%                      the fluid solver.
 %           fFSIprev : force vector on the FSI interface in previous time step a calculated from
-%                      the fluid solver
+%                      the fluid solver.
 %
 %             OUTPUT
-%       displacement : The resulting displacement field at current time
-%           velocity : The resulting velocity field at current time
+%       displacement : The resulting displacement field at current time.
+%           velocity : The resulting velocity field at current time.
+%       acceleration : The resulting acceleration field at current time.
+%           sens_fsi : The sensitivity of the Structural displacement with respect to
+%                      the displacement on the fsi interface.
 %
 %% Function main body
 
@@ -112,23 +115,6 @@ velocityTest = Udot(1:2*length(mesh.nodes));
 acceleration = Udot(2*length(mesh.nodes)+1:end);
 
 %% Calculating the senstitivities dUdot_dU
-% % % % % % % % Extracting the velocity part of G
-% % % % % % %  dispDOF  = 1:2*length(mesh.nodes);
-% % % % % % %  velDOF = 2*length(mesh.nodes)+1 : 4*length(mesh.nodes);
-% % % % % % % % G_vel_vel   = G(velDOF,velDOF);
-% % % % % % % % G_vel_disp  = G(velDOF,dispDOF);
-% % % % % % % G_disp_vel  = G(dispDOF,velDOF);
-% % % % % % % G_disp_disp = G(dispDOF,dispDOF);
-% % % % % % % % dUdot_dU_2  = -1*(G_vel_vel^-1)*G_vel_disp;
-% % % % % % % dUdot_dU    = -1*(G_disp_vel^-1)*G_disp_disp;
-% % % % % % % dUdot_dU_fsi    = dUdot_dU(mesh.fsiDOF, mesh.fsiDOF);
-% % % % % % % % % % % DeMat = zeros(4*length(mesh.nodes),2*length(mesh.nodes));
-% % % % % % % % % % % x = zeros(4*length(mesh.nodes),2*length(mesh.nodes));
-% % % % % % % % % % % % Calculating the RHS 
-% % % % % % % % % % % DeMat(1:2*length(mesh.nodes),:) = eye(2*length(mesh.nodes));
-% % % % % % % % % % % RHS_ses = -G*DeMat;
-% % % % % % % % % % % % Solving for sensitivities
-% % % % % % % % % % % x(2*length(mesh.nodes)+1:4*length(mesh.nodes),:) = G(2*length(mesh.nodes)+1:4*length(mesh.nodes),2*length(mesh.nodes)+1:4*length(mesh.nodes))\RHS_ses(2*length(mesh.nodes)+1:4*length(mesh.nodes),:);
 dispDOF  = 1:2*length(mesh.nodes);
 velDOF = 2*length(mesh.nodes)+1 : 4*length(mesh.nodes);
 G_vel_vel   = G(velDOF,velDOF);
@@ -147,25 +133,25 @@ sens = L\RHS_ses;
 sens = sens(1:2*length(mesh.nodes),:);
 sens_fsi = sens(mesh.fsiDOF,mesh.fsiDOF);
 
-%%% Verifying the above with finite difference.
-delta = 1E-4;
-% Petrubing Disp on Drichlet BC
-nodeDOF = 2*mesh.fsiNodes(10);
-% Solving for new velocity.
-% Extracting the displacement vector from Drichlet Vector
-U_new = U(1:2*length(mesh.nodes));
-Vel_old = U(2*length(mesh.nodes)+1:4*length(mesh.nodes));
-U_new(nodeDOF) = U_new(nodeDOF) + delta;
-
-% Using the changed displacement to calculate the new velocity
-Vel_new = -G_disp_vel\(G_disp_disp*U_new);
-
-% Calculating diff
-diff = Vel_new - Vel_old;
-
-dUdot_dU_fd = diff./delta;
-dUdot_dU_3 = full(sens(:,nodeDOF));
-
-% Extracting only the fsi velocity
-Vel_new = Vel_new(mesh.fsiDOF);
+%% Verifying the above with finite difference.
+% % % % % % delta = 1E-4;
+% % % % % % % Petrubing Disp on Drichlet BC
+% % % % % % nodeDOF = 2*mesh.fsiNodes(10);
+% % % % % % % Solving for new velocity.
+% % % % % % % Extracting the displacement vector from Drichlet Vector
+% % % % % % U_new = U(1:2*length(mesh.nodes));
+% % % % % % Vel_old = U(2*length(mesh.nodes)+1:4*length(mesh.nodes));
+% % % % % % U_new(nodeDOF) = U_new(nodeDOF) + delta;
+% % % % % % 
+% % % % % % % Using the changed displacement to calculate the new velocity
+% % % % % % Vel_new = -G_disp_vel\(G_disp_disp*U_new);
+% % % % % % 
+% % % % % % % Calculating diff
+% % % % % % diff = Vel_new - Vel_old;
+% % % % % % 
+% % % % % % dUdot_dU_fd = diff./delta;
+% % % % % % dUdot_dU_3 = full(sens(:,nodeDOF));
+% % % % % % 
+% % % % % % % Extracting only the fsi velocity
+% % % % % % Vel_new = Vel_new(mesh.fsiDOF);
 end

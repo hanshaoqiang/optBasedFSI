@@ -18,7 +18,7 @@
 %   _______________________________________________________________       %
 %                                                                         %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-function [displacement, velocity, acceleration] = solve_MeshMovement(mesh, bc, physics, transient, dispPrevious, velPrevious, accPrevious,duip_dui,petVel)
+function [displacement, velocity, acceleration] = solve_MeshMovement(mesh, bc, physics, transient, dispPrevious, velPrevious, accPrevious)
 %% Function documentation
 %
 % Returns the displacement field corresponding to a plain stress/strain
@@ -42,6 +42,9 @@ function [displacement, velocity, acceleration] = solve_MeshMovement(mesh, bc, p
 %       displacement : The resulting displacement field at current time
 %           velocity : The resulting velocity field at current time
 %       acceleration : The resulting acceleration field at current time.
+%           mesh_ses : Sensitivity of the fluid mesh with respect to the
+%                      fsi degree of freedom.
+%
 %
 %% Function main body
 
@@ -138,27 +141,27 @@ mesh_ses(bc_bu.freeDOF,:) = K(bc_bu.freeDOF,bc_bu.freeDOF)\rhs(bc_bu.freeDOF,:);
 mesh_ses(fsiDOF,:) = eye(length(fsiDOF));
 
 
-% Finite difference
-delta = 1E-4;
-pet_node = mesh.fsiNodes(20);
-pet_DOF = 2*pet_node;
-B = K;
-bc_bu.drichletVector(bc_bu.fsiDOF) = bc_bu.fsiDisp;
-rhs = -B*bc_bu.drichletVector;
-% Solving
-displac(bc_bu.freeDOF) = B(bc_bu.freeDOF,bc_bu.freeDOF)\rhs(bc_bu.freeDOF);
-displac(bc_bu.drichletDOF) = bc_bu.drichletVector(bc_bu.drichletDOF);
-
-% Perturbing the fsiNode
-bc_bu.drichletVector(pet_DOF) = bc_bu.drichletVector(pet_DOF) + delta;
-rhs = -B*bc_bu.drichletVector;
-% Solving
-displac_pert(bc_bu.freeDOF) = B(bc_bu.freeDOF,bc_bu.freeDOF)\rhs(bc_bu.freeDOF);
-displac_pert(bc_bu.drichletDOF) = bc_bu.drichletVector(bc_bu.drichletDOF);
-
-mesh_sens_fd = (displac_pert - displac)./delta;
-mesh_sens_fd = mesh_sens_fd';
-mesh_sens_ana = mesh_ses(:,40);
+%% Finite difference check
+% % % delta = 1E-4;
+% % % pet_node = mesh.fsiNodes(20);
+% % % pet_DOF = 2*pet_node;
+% % % B = K;
+% % % bc_bu.drichletVector(bc_bu.fsiDOF) = bc_bu.fsiDisp;
+% % % rhs = -B*bc_bu.drichletVector;
+% % % % Solving
+% % % displac(bc_bu.freeDOF) = B(bc_bu.freeDOF,bc_bu.freeDOF)\rhs(bc_bu.freeDOF);
+% % % displac(bc_bu.drichletDOF) = bc_bu.drichletVector(bc_bu.drichletDOF);
+% % % 
+% % % % Perturbing the fsiNode
+% % % bc_bu.drichletVector(pet_DOF) = bc_bu.drichletVector(pet_DOF) + delta;
+% % % rhs = -B*bc_bu.drichletVector;
+% % % % Solving
+% % % displac_pert(bc_bu.freeDOF) = B(bc_bu.freeDOF,bc_bu.freeDOF)\rhs(bc_bu.freeDOF);
+% % % displac_pert(bc_bu.drichletDOF) = bc_bu.drichletVector(bc_bu.drichletDOF);
+% % % 
+% % % mesh_sens_fd = (displac_pert - displac)./delta;
+% % % mesh_sens_fd = mesh_sens_fd';
+% % % mesh_sens_ana = mesh_ses(:,40);
 
 
 end
